@@ -108,18 +108,19 @@ def init_db():
     for name, code in DEFAULT_SBUS:
         conn.execute("INSERT OR IGNORE INTO sbus (name, code) VALUES (?, ?)", (name, code))
     conn.commit()
-    # Seed a default admin on first run (no password set until reset).
+    # Seed default admin accounts on first run (with known passwords).
     cur = conn.execute("SELECT COUNT(*) AS n FROM users")
     if cur.fetchone()['n'] == 0:
-        conn.execute(
-            "INSERT INTO users (name, email, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-            ('Administrator', 'admin@anwargroup.com', 'admin', _now(), _now()),
-        )
+        now = _now()
+        for name, email, pw in (
+            ('Administrator', 'admin@anwargroup.com', 'Admin@12345'),
+            ('Mahafuzr', 'mahafuzr@gmail.com', 'admin@4321'),
+        ):
+            conn.execute(
+                "INSERT INTO users (name, email, role, sbu, password_hash, password_plain, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (name, email, 'admin', None, _hash_password(pw), pw, now, now),
+            )
         conn.commit()
-        link = issue_reset_token(conn, 'admin@anwargroup.com')
-        if link:
-            conn.commit()
-            _send_email(conn, 'admin@anwargroup.com', 'Initial administrator account', link)
     conn.close()
 
 
