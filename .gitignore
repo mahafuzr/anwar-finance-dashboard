@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Local runtime data — do NOT commit credentials or user data
+users.db
+outbox.log
+smtp_config.json
+server_config.json
+
+# Local downloads / artifacts
+cloudflared.exe
+WhatsApp*
+/anwar_big_logo.avif
+/WhatsApp Image 2026-10-15 at 4.13.54 PM.jpeg
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.playwright-mcp/
+.agents/
+.claude/
+agent/
+skills-lock.json

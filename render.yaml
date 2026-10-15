@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: anwar-finance-dashboard
+    runtime: python
+    plan: free
+    buildCommand: ""
+    startCommand: python server.py --no-browser
+    envVars:
+      - key: BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+    disk:
+      name: appdata
+      mountPath: /opt/render/.appdata
+      sizeGB: 1

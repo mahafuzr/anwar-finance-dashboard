@@ -1,0 +1,1 @@
+# Anwar Finance Dashboard has no third-party dependencies (stdlib only).
