@@ -108,19 +108,24 @@ def init_db():
     for name, code in DEFAULT_SBUS:
         conn.execute("INSERT OR IGNORE INTO sbus (name, code) VALUES (?, ?)", (name, code))
     conn.commit()
-    # Seed default admin accounts on first run (with known passwords).
-    cur = conn.execute("SELECT COUNT(*) AS n FROM users")
-    if cur.fetchone()['n'] == 0:
-        now = _now()
-        for name, email, pw in (
-            ('Administrator', 'admin@anwargroup.com', 'Admin@12345'),
-            ('Mahafuzr', 'mahafuzr@gmail.com', 'admin@4321'),
-        ):
+    # Ensure known admin accounts exist with known passwords (idempotent).
+    now = _now()
+    for name, email, pw in (
+        ('Administrator', 'admin@anwargroup.com', 'Admin@12345'),
+        ('Mahafuzr', 'mahafuzr@gmail.com', 'admin@4321'),
+    ):
+        row = conn.execute("SELECT id, password_hash FROM users WHERE email = ?", (email,)).fetchone()
+        if row is None:
             conn.execute(
                 "INSERT INTO users (name, email, role, sbu, password_hash, password_plain, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (name, email, 'admin', None, _hash_password(pw), pw, now, now),
             )
-        conn.commit()
+        elif not row['password_hash']:
+            conn.execute(
+                "UPDATE users SET name = ?, role = 'admin', password_hash = ?, password_plain = ?, updated_at = ? WHERE id = ?",
+                (name, _hash_password(pw), pw, now, row['id']),
+            )
+    conn.commit()
     conn.close()
 
 
